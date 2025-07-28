@@ -30,7 +30,7 @@ export default function ContainerListPage() {
     try {
       const data = await getContainers();
       setContainers(data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch containers");
     } finally {
       setLoading(false);

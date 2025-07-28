@@ -1,9 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  getCustomerById,
-  getCustomerStatement,
-} from "@/services/customerService";
+import { getCustomerStatement } from "@/services/customerService";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -23,37 +20,24 @@ export default function CustomerStatement({ customerId }: Props) {
   const [statement, setStatement] = useState<StatementEntry[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [customerName, setCustomerName] = useState("");
+  const [customerName] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCustomer = async () => {
+    const fetchStatement = async () => {
       try {
-        const data = await getCustomerById(customerId);
-        setCustomerName(data.customerName || data.name);
+        setLoading(true);
+        const data = await getCustomerStatement(customerId, fromDate, toDate);
+        setStatement(data);
       } catch {
-        alert("Failed to load customer.");
+        alert("Failed to fetch statement");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchCustomer();
-  }, [customerId]);
-
-  useEffect(() => {
     fetchStatement();
-  }, [fromDate, toDate]);
-
-  const fetchStatement = async () => {
-    try {
-      setLoading(true);
-      const data = await getCustomerStatement(customerId, fromDate, toDate);
-      setStatement(data);
-    } catch {
-      alert("Failed to fetch statement");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [customerId, fromDate, toDate]);
 
   // Compute running balances
   let balance = 0;

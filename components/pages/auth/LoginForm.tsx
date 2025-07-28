@@ -28,7 +28,7 @@ export default function LoginForm() {
       setUser(res.user);
 
       router.replace("/dashboard");
-    } catch (err) {
+    } catch {
       alert("Invalid credentials");
     } finally {
       setLoading(false);

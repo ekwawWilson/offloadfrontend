@@ -8,12 +8,8 @@ import {
   Home,
   Users,
   UserPlus,
-  Building2,
-  Package,
-  ReceiptText,
   X,
   List,
-  CarFrontIcon,
   ShoppingCart,
   Truck,
 } from "lucide-react";

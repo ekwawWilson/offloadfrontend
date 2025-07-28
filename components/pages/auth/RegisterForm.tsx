@@ -20,7 +20,7 @@ export default function RegisterForm() {
       await register(name, email, password, companyId);
       alert("Account created. Please login.");
       router.push("/login");
-    } catch (err) {
+    } catch {
       alert("Registration failed");
     }
   };

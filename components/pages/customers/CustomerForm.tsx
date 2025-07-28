@@ -26,7 +26,7 @@ export default function CustomerForm({ mode, customerId }: Props) {
           const data = await getCustomerById(customerId);
           setName(data.customerName || data.name);
           setPhone(data.phone);
-        } catch (err) {
+        } catch {
           alert("Failed to load customer.");
           router.back();
         } finally {
@@ -35,7 +35,7 @@ export default function CustomerForm({ mode, customerId }: Props) {
       };
       fetchCustomer();
     }
-  }, [mode, customerId]);
+  }, [mode, customerId, router]);
 
   const handleSubmit = async () => {
     if (!name || !phone) {
@@ -53,7 +53,7 @@ export default function CustomerForm({ mode, customerId }: Props) {
         alert("Customer updated.");
       }
       router.push("/customers");
-    } catch (err) {
+    } catch {
       alert("Something went wrong.");
     } finally {
       setLoading(false);

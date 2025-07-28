@@ -13,6 +13,16 @@ type ParsedExcelItem = {
   unitPrice: number;
 };
 
+type Supplier = {
+  id: string;
+  suppliername: string;
+};
+
+type SupplierItem = {
+  itemName: string;
+  price: number;
+};
+
 export default function AddContainerForm() {
   const router = useRouter();
   const [year, setYear] = useState(new Date().getFullYear().toString());
@@ -22,14 +32,14 @@ export default function AddContainerForm() {
   const [supplierOptions, setSupplierOptions] = useState<
     { label: string; value: string }[]
   >([]);
-  const [supplierItems, setSupplierItems] = useState<any[]>([]);
+  const [supplierItems, setSupplierItems] = useState<SupplierItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<ParsedExcelItem[]>([]);
   const [mode, setMode] = useState<"none" | "excel" | "supplier">("none");
 
   useEffect(() => {
     getSuppliers().then((res) => {
       setSupplierOptions(
-        res.map((s: any) => ({ label: s.suppliername, value: s.id }))
+        res.map((s: Supplier) => ({ label: s.suppliername, value: s.id }))
       );
     });
   }, []);
@@ -173,7 +183,7 @@ export default function AddContainerForm() {
             <tbody>
               {(mode === "excel"
                 ? selectedItems
-                : supplierItems.map((item: any) => ({
+                : supplierItems.map((item: SupplierItem) => ({
                     itemName: item.itemName,
                     unitPrice: item.price,
                     quantity:

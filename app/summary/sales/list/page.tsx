@@ -1,18 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import { getSales, deleteSaleById } from "@/services/salesService";
 import SalesListComponent from "@/components/pages/sales/SalesListComponent";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
+type Sale = {
+  id: string;
+  saleType: "cash" | "credit";
+  totalAmount: number;
+  createdAt: string;
+  customer: {
+    customerName: string;
+  };
+};
+
 export default function SalesListPage() {
-  const [sales, setSales] = useState<any[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
-  const loadSales = async () => {
+  const loadSales = useCallback(async () => {
     try {
       setLoading(true);
       const result = await getSales(
@@ -21,25 +31,24 @@ export default function SalesListPage() {
       );
       setSales(result);
     } catch (err) {
-      alert("Failed to load sales.");
+      console.error("Failed to load sales.", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate]);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteSaleById(id);
       loadSales();
     } catch (err) {
-      alert("Failed to delete sale.");
-      console.error(err);
+      console.error("Failed to delete sale.", err);
     }
   };
 
   useEffect(() => {
     loadSales();
-  }, []);
+  }, [loadSales]);
 
   return (
     <DashboardLayout>

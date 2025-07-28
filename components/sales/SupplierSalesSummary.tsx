@@ -52,8 +52,27 @@ export default function SupplierSalesSummary() {
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      if (endDate < startDate) {
+        toast.error("End date must be after start date.");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const start = startDate.toISOString().split("T")[0];
+        const end = endDate.toISOString().split("T")[0];
+        const data = await getSalesSummaryBySupplier(start, end);
+        setSales(data);
+      } catch {
+        toast.error("Failed to fetch summary");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
-  }, []);
+  }, [startDate, endDate]); // ✅ added dependencies here
 
   const filtered = sales.filter((s) =>
     saleType ? s.saleType.toLowerCase() === saleType.toLowerCase() : true

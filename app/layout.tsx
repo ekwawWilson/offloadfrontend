@@ -2,7 +2,6 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import { AuthProvider } from "@/context/AuthContext";
-import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {

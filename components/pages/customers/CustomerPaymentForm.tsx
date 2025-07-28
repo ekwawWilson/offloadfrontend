@@ -26,7 +26,7 @@ export default function CustomerPaymentForm({ customerId }: Props) {
       try {
         const data = await getCustomerById(customerId);
         setCustomerName(data.customerName || data.name);
-      } catch (err) {
+      } catch {
         alert("Failed to load customer info");
         router.back();
       } finally {
@@ -34,7 +34,7 @@ export default function CustomerPaymentForm({ customerId }: Props) {
       }
     };
     fetchCustomer();
-  }, [customerId]);
+  }, [customerId, router]);
 
   const handleSubmit = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -55,7 +55,7 @@ export default function CustomerPaymentForm({ customerId }: Props) {
       });
       alert(`GHS ${amount} payment recorded for ${customerName}`);
       router.push(`/customers`);
-    } catch (err) {
+    } catch {
       alert("Failed to record payment");
     } finally {
       setSubmitting(false);

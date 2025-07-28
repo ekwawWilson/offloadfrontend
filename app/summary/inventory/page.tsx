@@ -8,9 +8,22 @@ import {
 import InventoryReportComponent from "@/components/inventory/InventoryReportComponent";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
+type InventoryItem = {
+  id: string;
+  itemName: string;
+  supplierName: string;
+  available: number;
+  unitPrice: number;
+};
+
+type Supplier = {
+  id: string;
+  suppliername: string;
+};
+
 export default function InventoryReportPage() {
-  const [inventory, setInventory] = useState<any[]>([]);
-  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

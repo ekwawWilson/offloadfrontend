@@ -11,6 +11,7 @@ import Select from "react-select";
 import classNames from "classnames";
 import { Dialog } from "@headlessui/react";
 import { printReceiptHTML } from "@/lib/printReceipts";
+import { useCallback } from "react"; // at the top
 
 type Item = {
   id: string;
@@ -33,6 +34,11 @@ type CustomerOption = {
   label: string;
   value: string;
 };
+type Customer = {
+  id: string;
+  name: string;
+  phone: string;
+};
 
 export default function RegularSaleComponent() {
   const router = useRouter();
@@ -52,25 +58,27 @@ export default function RegularSaleComponent() {
   const [showCreditPrompt, setShowCreditPrompt] = useState(false);
   const [showPrintPrompt, setShowPrintPrompt] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [custData, itemData] = await Promise.all([
-          getCustomers(),
-          getSupplierItemsWithSales(),
-        ]);
-        setCustomers(
-          custData.map((c: any) => ({
-            label: `${c.name} (${c.phone})`,
-            value: c.id,
-          }))
-        );
-        setItems(itemData);
-      } catch {
-        toast.error("Failed to load data.");
-      }
-    })();
+  const fetchData = useCallback(async () => {
+    try {
+      const [custData, itemData] = await Promise.all([
+        getCustomers(),
+        getSupplierItemsWithSales(),
+      ]);
+      setCustomers(
+        custData.map((c: Customer) => ({
+          label: `${c.name} (${c.phone})`,
+          value: c.id,
+        }))
+      );
+      setItems(itemData);
+    } catch {
+      toast.error("Failed to load data.");
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredItems = useMemo(
     () =>

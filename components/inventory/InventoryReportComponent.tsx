@@ -5,9 +5,22 @@ import html2pdf from "html2pdf.js";
 import * as XLSX from "xlsx";
 import Button from "@/components/shared/Button";
 
+type InventoryItem = {
+  id: string;
+  itemName: string;
+  supplierName: string;
+  available: number;
+  unitPrice: number;
+};
+
+type Supplier = {
+  id: string;
+  suppliername: string;
+};
+
 interface Props {
-  inventory: any[];
-  suppliers: any[];
+  inventory: InventoryItem[];
+  suppliers: Supplier[];
   loading: boolean;
 }
 
@@ -78,14 +91,14 @@ export default function InventoryReportComponent({
           onChange={(e) => setSelectedSupplier(e.target.value)}
         >
           <option value="">All Suppliers</option>
-          {suppliers.map((s: any) => (
+          {suppliers.map((s) => (
             <option key={s.suppliername} value={s.suppliername}>
               {s.suppliername}
             </option>
           ))}
         </select>
 
-        <div className="flex gap-2 ">
+        <div className="flex gap-2">
           <Button className="rounded-xs" onClick={exportToPDF}>
             Export PDF
           </Button>

@@ -10,14 +10,44 @@ import { useParams, useRouter } from "next/navigation";
 import { Dialog } from "@headlessui/react";
 import { printReceiptHTML } from "@/lib/printReceipts";
 
+type SaleItem = {
+  id: string;
+  itemName: string;
+  supplierName: string;
+  remainingQty: number;
+  unitPrice: number;
+  containerNo: string;
+};
+
+type CartItem = {
+  id: string;
+  itemName: string;
+  supplierName: string;
+  remainingQty: number;
+  unitPrice: number;
+  qty: number; // ✅ Required in CartItem
+};
+
+type Customer = {
+  id: string;
+  name: string;
+  phone: string;
+};
+
+type CustomerOption = {
+  label: string;
+  value: string;
+};
+
 export default function ContainerSalesForm() {
   const { id: containerId } = useParams();
   const router = useRouter();
 
-  const [items, setItems] = useState<any[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [items, setItems] = useState<SaleItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<CustomerOption | null>(null);
   const [saleType, setSaleType] = useState<"cash" | "credit">("cash");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +66,7 @@ export default function ContainerSalesForm() {
         ]);
         setItems(itemData);
         setCustomers(
-          customerData.map((c: any) => ({
+          customerData.map((c: Customer) => ({
             label: `${c.name} (${c.phone})`,
             value: c.id,
           }))
@@ -48,7 +78,7 @@ export default function ContainerSalesForm() {
     })();
   }, [containerId]);
 
-  const containerno = (data: any[]) => {
+  const containerno = (data: SaleItem[]) => {
     if (data.length > 0) {
       setContainerNo(data[0].containerNo);
     }
@@ -62,7 +92,7 @@ export default function ContainerSalesForm() {
     );
   }, [items, search]);
 
-  const addToCart = (item: any) => {
+  const addToCart = (item: Omit<CartItem, "qty">) => {
     const exists = cart.find((c) => c.id === item.id);
     if (exists) {
       if (exists.qty < item.remainingQty) {
@@ -73,7 +103,7 @@ export default function ContainerSalesForm() {
         toast.error("Insufficient stock");
       }
     } else if (item.remainingQty > 0) {
-      setCart((prev) => [{ ...item, qty: 1 }, ...prev]);
+      setCart((prev) => [{ ...item, qty: 1 }, ...prev]); // ✅ now qty is added
     } else {
       toast.error("Item is out of stock");
     }
@@ -101,7 +131,7 @@ export default function ContainerSalesForm() {
       await recordSale({
         sourceType: "container",
         sourceId: containerId,
-        customerId: selectedCustomer.value,
+        customerId: selectedCustomer?.value,
         saleType,
         items: cart.map((i) => ({
           itemName: i.itemName,

@@ -5,48 +5,56 @@ import {
   deleteCustomerPayment,
 } from "@/services/paymentService";
 import { getCustomerById } from "@/services/customerService";
+import { useCallback } from "react";
 
 type Props = {
   customerId: string;
 };
 
+type Payment = {
+  id: string;
+  amount: number;
+  paymentType: string;
+  note?: string;
+  createdAt: string;
+};
+
 export default function CustomerPaymentsList({ customerId }: Props) {
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const loadPayments = async () => {
+  const loadPayments = useCallback(async () => {
     try {
       const data = await getCustomerPayments(customerId);
       setPayments(data);
-    } catch (err) {
+    } catch {
       alert("Failed to load payments.");
     }
-  };
-
-  const loadCustomer = async () => {
-    try {
-      const data = await getCustomerById(customerId);
-      setCustomerName(data.customerName || data.name);
-    } catch {
-      alert("Failed to load customer.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadPayments();
-    loadCustomer();
   }, [customerId]);
 
+  useEffect(() => {
+    const loadCustomer = async () => {
+      try {
+        const data = await getCustomerById(customerId);
+        setCustomerName(data.customerName || data.name);
+      } catch {
+        alert("Failed to load customer.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPayments();
+    loadCustomer();
+  }, [loadPayments, customerId]);
   const confirmDelete = async (paymentId: string) => {
     if (!window.confirm("Delete this payment?")) return;
 
     try {
       await deleteCustomerPayment(paymentId);
       await loadPayments();
-    } catch (err) {
+    } catch {
       alert("Failed to delete payment.");
     }
   };

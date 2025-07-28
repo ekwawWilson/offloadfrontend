@@ -8,7 +8,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center text-center px-6 py-20 bg-gradient-to-br from-blue-600 to-indigo-800 text-white">
         <Image
-          src="/logo.png"
+          src="/eyo.png"
           alt="Company Logo"
           width={100}
           height={100}
