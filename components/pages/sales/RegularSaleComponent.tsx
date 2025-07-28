@@ -20,6 +20,15 @@ type Item = {
   unitPrice: number;
 };
 
+type CartItem = {
+  id: string;
+  itemName: string;
+  supplierName: string;
+  available: number;
+  unitPrice: number;
+  qty: number;
+};
+
 type CustomerOption = {
   label: string;
   value: string;
@@ -32,7 +41,7 @@ export default function RegularSaleComponent() {
 
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [items, setItems] = useState<Item[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerOption | null>(null);
@@ -125,27 +134,42 @@ export default function RegularSaleComponent() {
   const finalizeSale = async () => {
     if (loading) return;
 
+    if (!selectedCustomer) {
+      toast.error("Select a customer first.");
+      return;
+    }
+
+    if (cart.length === 0) {
+      toast.error("Cart is empty.");
+      return;
+    }
+
     setShowConfirmModal(false);
+
     try {
       setLoading(true);
+
+      const customerId = selectedCustomer.value;
+
       await recordSale({
         sourceType: "regular",
-        sourceId: selectedCustomer?.value!,
-        customerId: selectedCustomer?.value!,
+        sourceId: customerId,
+        customerId,
         saleType,
-        items: cart.map((i) => ({
-          itemName: i.itemName,
-          quantity: i.qty,
-          unitPrice: i.unitPrice,
+        items: cart.map((item) => ({
+          itemName: item.itemName,
+          quantity: item.qty,
+          unitPrice: item.unitPrice,
         })),
       });
 
       toast.success("Sale recorded");
 
-      // Step 1: Offer print
+      // Prompt user to print receipt
       setShowPrintPrompt(true);
-    } catch {
+    } catch (error) {
       toast.error("Failed to record sale");
+      console.error(error);
     } finally {
       setLoading(false);
     }
