@@ -1,6 +1,7 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { Boxes, BarChart2, Users } from "lucide-react"; // ✅ imported icons
 
 export default function Home() {
   return (
@@ -8,8 +9,8 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center text-center px-6 py-20 bg-gradient-to-br from-blue-600 to-indigo-800 text-white">
         <Image
-          src="/eyo.png"
-          alt="Company Logo"
+          src="/icon/eyo.png"
+          alt="Logo"
           width={100}
           height={100}
           className="mb-6"
@@ -33,13 +34,7 @@ export default function Home() {
       <section className="py-16 px-6 bg-white text-gray-800">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 text-center">
           <div>
-            <Image
-              src="/icons/box.svg"
-              alt="Containers"
-              width={40}
-              height={40}
-              className="mx-auto mb-4"
-            />
+            <Boxes size={40} className="mx-auto mb-4 text-blue-600" />
             <h3 className="text-lg font-semibold mb-2">Container Tracking</h3>
             <p className="text-sm text-gray-600">
               Stay on top of your incoming inventory and optimize delivery
@@ -47,26 +42,14 @@ export default function Home() {
             </p>
           </div>
           <div>
-            <Image
-              src="/icons/sales.svg"
-              alt="Sales"
-              width={40}
-              height={40}
-              className="mx-auto mb-4"
-            />
+            <BarChart2 size={40} className="mx-auto mb-4 text-blue-600" />
             <h3 className="text-lg font-semibold mb-2">Sales Insights</h3>
             <p className="text-sm text-gray-600">
               Visualize daily, weekly, and monthly sales trends across branches.
             </p>
           </div>
           <div>
-            <Image
-              src="/icons/users.svg"
-              alt="Users"
-              width={40}
-              height={40}
-              className="mx-auto mb-4"
-            />
+            <Users size={40} className="mx-auto mb-4 text-blue-600" />
             <h3 className="text-lg font-semibold mb-2">Customer Management</h3>
             <p className="text-sm text-gray-600">
               Track credit sales, customer payments, and outstanding balances
@@ -78,7 +61,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-gray-100 py-6 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} YourCompany. All rights reserved.
+        © {new Date().getFullYear()} EYO SOLUTIONS All rights reserved.
       </footer>
     </div>
   );
