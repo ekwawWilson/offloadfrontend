@@ -1,14 +1,18 @@
+// app/customers/[id]/payments/page.tsx
+
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import CustomerPaymentForm from "@/components/pages/customers/CustomerPaymentForm";
 
-type Props = {
-  params: { id: string };
-};
+export default async function CustomerPaymentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-export default function CustomerPaymentPage({ params }: Props) {
   return (
     <DashboardLayout>
-      <CustomerPaymentForm customerId={params.id} />
+      <CustomerPaymentForm customerId={id} />
     </DashboardLayout>
   );
 }

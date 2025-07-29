@@ -1,10 +1,7 @@
-import DashboardLayout from "@/components/layout/DashboardLayout";
-import SupplierSalesSummary from "@/components/sales/SupplierSalesSummary";
+// app/summary/supplier/page.tsx
 
-export default function SupplierSalesPage() {
-  return (
-    <DashboardLayout>
-      <SupplierSalesSummary />
-    </DashboardLayout>
-  );
+import SupplierSalesPage from "@/components/pages/summary/SupplierSalesPage";
+
+export default function Page() {
+  return <SupplierSalesPage />;
 }

@@ -1,14 +1,18 @@
+// app/customers/[id]/payments/history/page.tsx
+
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import CustomerPaymentsList from "@/components/pages/customers/CustomerPaymentsList";
 
-type Props = {
-  params: { id: string };
-};
+export default async function PaymentHistoryPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-export default function PaymentHistoryPage({ params }: Props) {
   return (
     <DashboardLayout>
-      <CustomerPaymentsList customerId={params.id} />
+      <CustomerPaymentsList customerId={id} />
     </DashboardLayout>
   );
 }

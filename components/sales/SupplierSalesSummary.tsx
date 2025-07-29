@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import html2pdf from "html2pdf.js";
 import { getSalesSummaryBySupplier } from "@/services/reportService";
 import { format } from "date-fns";
 import { toast } from "react-hot-toast";
@@ -83,7 +82,8 @@ export default function SupplierSalesSummary() {
     0
   );
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    const html2pdf = (await import("html2pdf.js")).default;
     const html = `
     <html>
       <head><meta charset="utf-8">
