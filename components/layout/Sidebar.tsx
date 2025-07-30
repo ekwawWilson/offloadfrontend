@@ -12,6 +12,7 @@ import {
   List,
   ShoppingCart,
   Truck,
+  LogOut,
 } from "lucide-react";
 
 const navItems = [
@@ -30,7 +31,7 @@ type SidebarProps = {
 
 export default function Sidebar({ open, setOpen }: SidebarProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <>
@@ -38,7 +39,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       <div
         className={clsx(
           "fixed inset-0 bg-black/30 z-40 transition-opacity md:hidden",
-          open ? "opacity-0" : "pointer-events-none opacity-0"
+          open ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={() => setOpen(false)}
       />
@@ -51,13 +52,16 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           "md:static md:block"
         )}
       >
+        {/* Header */}
         <div className="p-4 border-b flex items-center justify-between text-lg font-bold text-blue-700">
           PETROS
           <button className="md:hidden" onClick={() => setOpen(false)}>
             <X className="w-5 h-5 text-gray-700" />
           </button>
         </div>
-        <nav className="p-4 space-y-2">
+
+        {/* Navigation */}
+        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
           {navItems.map(({ name, href, icon: Icon }) => (
             <Link
               key={name}
@@ -74,9 +78,22 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
             </Link>
           ))}
         </nav>
+
+        {/* User Info */}
         <div className="p-4 text-sm text-gray-600 border-t">
-          Logged in as <br />
+          Online :<br />
           <span className="font-medium">{user?.email}</span>
+        </div>
+
+        {/* Logout (mobile only) */}
+        <div className="p-4 md:hidden border-t">
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-red-700 hover:bg-red-50 text-sm"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
         </div>
       </aside>
     </>

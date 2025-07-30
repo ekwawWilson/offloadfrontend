@@ -24,6 +24,8 @@ export default function ContainerListPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const loadData = async () => {
     setLoading(true);
@@ -43,6 +45,11 @@ export default function ContainerListPage() {
 
   const filtered = containers.filter((c) =>
     c.number.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const paginated = filtered.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
   );
 
   const handleMarkReceived = async (id: string) => {
@@ -100,7 +107,10 @@ export default function ContainerListPage() {
         placeholder="Search by container number..."
         className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded mb-5 shadow-sm"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1); // reset to first page on search
+        }}
       />
 
       <div className="overflow-x-auto bg-white rounded shadow">
@@ -116,16 +126,16 @@ export default function ContainerListPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && !loading && (
+            {paginated.length === 0 && !loading && (
               <tr>
                 <td colSpan={6} className="p-4 text-center text-gray-500">
                   No containers found.
                 </td>
               </tr>
             )}
-            {filtered.map((item, i) => (
+            {paginated.map((item, i) => (
               <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="p-3">{i + 1}</td>
+                <td className="p-3">{(page - 1) * ITEMS_PER_PAGE + i + 1}</td>
                 <td className="p-3 font-medium text-blue-800">{item.number}</td>
                 <td className="p-3 text-gray-700">{item.company}</td>
                 <td className="p-3 hidden md:table-cell text-gray-600">
@@ -155,6 +165,33 @@ export default function ContainerListPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {filtered.length > ITEMS_PER_PAGE && (
+        <div className="mt-4 flex justify-center gap-2 items-center">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <span className="text-sm">
+            Page {page} of {Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+          </span>
+          <button
+            onClick={() =>
+              setPage((p) =>
+                Math.min(p + 1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
+              )
+            }
+            disabled={page === Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+            className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       <Dialog
         open={!!selectedId}

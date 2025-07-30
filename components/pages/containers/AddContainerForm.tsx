@@ -35,6 +35,7 @@ export default function AddContainerForm() {
   const [supplierItems, setSupplierItems] = useState<SupplierItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<ParsedExcelItem[]>([]);
   const [mode, setMode] = useState<"none" | "excel" | "supplier">("none");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     getSuppliers().then((res) => {
@@ -59,6 +60,7 @@ export default function AddContainerForm() {
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const parsed = XLSX.utils.sheet_to_json(worksheet) as ParsedExcelItem[];
     setSelectedItems(parsed);
+    setMode("excel");
   };
 
   const handleQuantityChange = (itemName: string, qty: number) => {
@@ -67,6 +69,11 @@ export default function AddContainerForm() {
         item.itemName === itemName ? { ...item, quantity: qty } : item
       )
     );
+  };
+
+  const handleClearPreview = () => {
+    setSelectedItems([]);
+    setMode("none");
   };
 
   const handleSubmit = async () => {
@@ -96,11 +103,14 @@ export default function AddContainerForm() {
     };
 
     try {
+      setSaving(true);
       await createContainer(payload);
       toast.success("Container added");
       router.push("/containers");
     } catch {
       toast.error("Failed to create container");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -144,7 +154,7 @@ export default function AddContainerForm() {
         </select>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         <button
           onClick={() => setMode("supplier")}
           className="bg-blue-600 text-white px-4 py-2 rounded"
@@ -158,16 +168,23 @@ export default function AddContainerForm() {
             accept=".xlsx,.xls,.csv"
             onChange={handleExcelUpload}
             hidden
-            onClick={() => setMode("excel")}
           />
         </label>
         <a
           href="/templates/container_template.xlsx"
           download
-          className="text-sm text-blue-700 underline"
+          className="text-sm text-blue-700 underline self-center"
         >
           Download Excel Template
         </a>
+        {mode !== "none" && (
+          <button
+            onClick={handleClearPreview}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Clear Preview
+          </button>
+        )}
       </div>
 
       {mode !== "none" && (
@@ -220,9 +237,14 @@ export default function AddContainerForm() {
       <div className="pt-4 text-right">
         <button
           onClick={handleSubmit}
-          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+          disabled={saving}
+          className={`px-6 py-2 rounded text-white ${
+            saving
+              ? "bg-green-300 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
         >
-          Save Container
+          {saving ? "Saving..." : "Save Container"}
         </button>
       </div>
     </div>
