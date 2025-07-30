@@ -38,7 +38,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       <div
         className={clsx(
           "fixed inset-0 bg-black/30 z-40 transition-opacity md:hidden",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+          open ? "opacity-0" : "pointer-events-none opacity-0"
         )}
         onClick={() => setOpen(false)}
       />

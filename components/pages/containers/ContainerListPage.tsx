@@ -88,7 +88,7 @@ export default function ContainerListPage() {
     <div className="max-w-6xl mx-auto py-2">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <Link
-          href="/containrs/new"
+          href="/containers/new"
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
         >
           + Add Container

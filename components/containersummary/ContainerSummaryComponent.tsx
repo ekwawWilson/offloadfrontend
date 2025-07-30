@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { getContainerSalesSummary } from "@/services/containerService";
 import { formatCurrency } from "@/utils/format";
 import { useParams } from "next/navigation";
-import html2pdf from "html2pdf.js";
-import Button from "../shared/Button";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
 type Item = {
@@ -47,10 +47,35 @@ export default function ContainerSummaryComponent() {
 
   const handleExportPDF = () => {
     if (!container) return;
-    const element = document.getElementById("container-summary-print");
-    if (element) {
-      html2pdf().from(element).save(`ContainerSummary-${container.number}.pdf`);
-    }
+
+    const doc = new jsPDF();
+    const title = `Container Sales Summary - ${container.number}`;
+    const deliveryDate = new Date(container.deliveryDate).toDateString();
+
+    doc.setFontSize(12);
+    doc.text(title, 14, 16);
+    doc.text(`Company: ${container.company}`, 14, 28);
+    doc.text(`Delivery Date: ${deliveryDate}`, 14, 40);
+
+    autoTable(doc, {
+      startY: 50,
+      head: [["Item", "Sold", "Remaining", "Unit Price", "Total"]],
+      body: container.items.map((item) => [
+        item.name,
+        item.sold.toString(),
+        item.remainingQty.toString(),
+        `${formatCurrency(item.unitPrice)}`,
+        `${formatCurrency(item.total)}`,
+      ]),
+      foot: [
+        [
+          { content: "Grand Total", colSpan: 4, styles: { halign: "right" } },
+          `${formatCurrency(container.totalSales)}`,
+        ],
+      ],
+    });
+
+    doc.save(`ContainerSummary-${container.number}.pdf`);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -62,10 +87,15 @@ export default function ContainerSummaryComponent() {
         <h1 className="text-lg font-bold">
           Container Sales Summary: {container.number}
         </h1>
-        <Button onClick={handleExportPDF}>📄 Export to PDF</Button>
+        <button
+          onClick={handleExportPDF}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Export to PDF
+        </button>
       </div>
 
-      <div id="container-summary-print">
+      <div>
         <p>
           <strong>Company:</strong> {container.company}
         </p>
@@ -74,7 +104,7 @@ export default function ContainerSummaryComponent() {
           {new Date(container.deliveryDate).toDateString()}
         </p>
 
-        <div className="overflow-x-auto mt-4">
+        <div className="max-h-[500px] overflow-y-auto mt-4 ">
           <table className="min-w-full border border-gray-300 text-sm">
             <thead className="bg-gray-100">
               <tr>
@@ -92,10 +122,10 @@ export default function ContainerSummaryComponent() {
                   <td className="border px-2 py-1">{item.sold}</td>
                   <td className="border px-2 py-1">{item.remainingQty}</td>
                   <td className="border px-2 py-1">
-                    ₵ {formatCurrency(item.unitPrice)}
+                    {formatCurrency(item.unitPrice)}
                   </td>
                   <td className="border px-2 py-1">
-                    ₵ {formatCurrency(item.total)}
+                    {formatCurrency(item.total)}
                   </td>
                 </tr>
               ))}
@@ -106,7 +136,7 @@ export default function ContainerSummaryComponent() {
                   Grand Total
                 </td>
                 <td className="border px-2 py-1">
-                  ₵ {formatCurrency(container.totalSales)}
+                  {formatCurrency(container.totalSales)}
                 </td>
               </tr>
             </tfoot>
