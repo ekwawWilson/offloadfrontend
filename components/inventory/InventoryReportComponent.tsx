@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import html2pdf from "html2pdf.js";
-import * as XLSX from "xlsx";
 import Button from "@/components/shared/Button";
 
 type InventoryItem = {
@@ -38,7 +36,9 @@ export default function InventoryReportComponent({
   const formatCurrency = (value: number) =>
     value.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const html2pdf = (await import("html2pdf.js")).default;
+
     const content = `
       <h2>Inventory Report for ${selectedSupplier || "All Suppliers"}</h2>
       <table border="1" cellspacing="0" cellpadding="5">
@@ -75,7 +75,9 @@ export default function InventoryReportComponent({
     html2pdf().set(opt).from(content).save();
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
+    const XLSX = await import("xlsx");
+
     const worksheet = XLSX.utils.json_to_sheet(filtered);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
@@ -99,9 +101,7 @@ export default function InventoryReportComponent({
         </select>
 
         <div className="flex gap-2">
-          <Button className="rounded-xs" onClick={exportToPDF}>
-            Export PDF
-          </Button>
+          <Button onClick={exportToPDF}>Export PDF</Button>
           <Button onClick={exportToExcel}>Export Excel</Button>
         </div>
       </div>
