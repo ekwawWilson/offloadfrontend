@@ -10,6 +10,18 @@ import {
 import { format } from "date-fns";
 import { toast } from "react-hot-toast";
 import { Dialog } from "@headlessui/react";
+import { 
+  Container, 
+  Plus, 
+  MoreVertical, 
+  Truck, 
+  CheckCircle, 
+  Clock, 
+  Building,
+  Calendar
+} from "lucide-react";
+import SearchInput from "@/components/ui/SearchInput";
+import Badge from "@/components/ui/Badge";
 
 type ContainerData = {
   id: string;
@@ -77,171 +89,326 @@ export default function ContainerListPage() {
     }
   };
 
-  const statusBadge = (status: string) => {
-    const base = "px-2 py-0.5 text-xs rounded font-medium";
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case "Pending":
-        return `${base} bg-yellow-100 text-yellow-800`;
+        return "warning";
       case "Received":
-        return `${base} bg-green-100 text-green-800`;
+        return "success";
       case "Done":
-        return `${base} bg-blue-100 text-blue-800`;
+        return "info";
       default:
-        return `${base} bg-gray-100 text-gray-800`;
+        return "default";
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "Pending":
+        return <Clock className="w-4 h-4" />;
+      case "Received":
+        return <CheckCircle className="w-4 h-4" />;
+      case "Done":
+        return <Truck className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
+    }
+  };
+
+  const totalContainers = containers.length;
+  const pendingContainers = containers.filter(c => c.status === "Pending").length;
+  const receivedContainers = containers.filter(c => c.status === "Received").length;
+  const doneContainers = containers.filter(c => c.status === "Done").length;
+
   return (
-    <div className="max-w-6xl mx-auto py-2">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-        <Link
-          href="/containers/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          + Add Container
-        </Link>
-      </div>
-
-      <input
-        type="text"
-        placeholder="Search by container number..."
-        className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded mb-5 shadow-sm"
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setPage(1); // reset to first page on search
-        }}
-      />
-
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="p-3">#</th>
-              <th className="p-3">Number</th>
-              <th className="p-3">Company</th>
-              <th className="p-3 hidden md:table-cell">Delivery Date</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.length === 0 && !loading && (
-              <tr>
-                <td colSpan={6} className="p-4 text-center text-gray-500">
-                  No containers found.
-                </td>
-              </tr>
-            )}
-            {paginated.map((item, i) => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="p-3">{(page - 1) * ITEMS_PER_PAGE + i + 1}</td>
-                <td className="p-3 font-medium text-blue-800">{item.number}</td>
-                <td className="p-3 text-gray-700">{item.company}</td>
-                <td className="p-3 hidden md:table-cell text-gray-600">
-                  {format(new Date(item.deliveryDate), "dd MMM yyyy")}
-                </td>
-                <td className="p-3">
-                  <span className={statusBadge(item.status)}>
-                    {item.status}
-                  </span>
-                </td>
-                <td className="p-3 text-left">
-                  <button
-                    onClick={() => setSelectedId(item.id)}
-                    className="text-lg px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    ⋯
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {loading && (
-          <div className="py-8 text-center text-sm text-gray-500">
-            Loading containers...
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Containers</h1>
+              <p className="mt-1 text-gray-600">Track and manage your container shipments</p>
+            </div>
+            <Link
+              href="/containers/new"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200"
+            >
+              <Plus className="w-5 h-5" />
+              Add Container
+            </Link>
           </div>
-        )}
-      </div>
-
-      {/* Pagination Controls */}
-      {filtered.length > ITEMS_PER_PAGE && (
-        <div className="mt-4 flex justify-center gap-2 items-center">
-          <button
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page === 1}
-            className="px-3 py-1 rounded border text-sm disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span className="text-sm">
-            Page {page} of {Math.ceil(filtered.length / ITEMS_PER_PAGE)}
-          </span>
-          <button
-            onClick={() =>
-              setPage((p) =>
-                Math.min(p + 1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
-              )
-            }
-            disabled={page === Math.ceil(filtered.length / ITEMS_PER_PAGE)}
-            className="px-3 py-1 rounded border text-sm disabled:opacity-50"
-          >
-            Next
-          </button>
         </div>
-      )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Containers</p>
+                <p className="text-3xl font-bold text-gray-900">{totalContainers}</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Container className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-3xl font-bold text-yellow-600">{pendingContainers}</p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <Clock className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Received</p>
+                <p className="text-3xl font-bold text-green-600">{receivedContainers}</p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Completed</p>
+                <p className="text-3xl font-bold text-blue-600">{doneContainers}</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Truck className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+          <SearchInput
+            value={search}
+            onChange={(value) => {
+              setSearch(value);
+              setPage(1);
+            }}
+            placeholder="Search containers by number..."
+            className="max-w-md"
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Loading containers...</span>
+            </div>
+          ) : (
+            <>
+              {paginated.length === 0 ? (
+                <div className="text-center py-16">
+                  <Container className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-4 text-lg font-medium text-gray-900">No containers found</h3>
+                  <p className="mt-2 text-gray-500">Get started by adding your first container.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Container
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Company
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                          Delivery Date
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {paginated.map((item, i) => (
+                        <tr
+                          key={item.id}
+                          className="hover:bg-gray-50 transition-colors duration-200"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                  {item.number.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  #{item.number}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Container {(page - 1) * ITEMS_PER_PAGE + i + 1}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <Building className="w-4 h-4 text-gray-400 mr-2" />
+                              <div className="text-sm text-gray-900">{item.company}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                            <div className="flex items-center text-sm text-gray-900">
+                              <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                              {format(new Date(item.deliveryDate), "MMM dd, yyyy")}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Badge variant={getStatusVariant(item.status) as any}>
+                              <div className="flex items-center gap-1">
+                                {getStatusIcon(item.status)}
+                                {item.status}
+                              </div>
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => setSelectedId(item.id)}
+                              className="inline-flex items-center p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Enhanced Pagination */}
+              {filtered.length > ITEMS_PER_PAGE && (
+                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-700">
+                      Showing <span className="font-medium">{(page - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                      <span className="font-medium">
+                        {Math.min(page * ITEMS_PER_PAGE, filtered.length)}
+                      </span>{" "}
+                      of <span className="font-medium">{filtered.length}</span> containers
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                        disabled={page === 1}
+                        className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      >
+                        Previous
+                      </button>
+                      
+                      <div className="flex space-x-1">
+                        {Array.from({ length: Math.min(Math.ceil(filtered.length / ITEMS_PER_PAGE), 5) }, (_, i) => {
+                          const pageNum = i + 1;
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setPage(pageNum)}
+                              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                                page === pageNum
+                                  ? "bg-blue-600 text-white"
+                                  : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => setPage((p) => Math.min(p + 1, Math.ceil(filtered.length / ITEMS_PER_PAGE)))}
+                        disabled={page === Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+                        className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       <Dialog
         open={!!selectedId}
         onClose={() => setSelectedId(null)}
         className="relative z-50"
       >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-sm rounded bg-white p-6 space-y-4 shadow-lg">
-            <Dialog.Title className="text-lg font-bold text-gray-800">
+          <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl border border-gray-200">
+            <Dialog.Title className="text-xl font-bold text-gray-900 mb-6 text-center">
               Container Actions
             </Dialog.Title>
-            <button
-              onClick={() => {
-                handleDelete(selectedId!);
-              }}
-              className="w-full px-4 py-2 bg-red-100 text-red-800 hover:bg-red-200 rounded text-sm"
-            >
-              Delete Container
-            </button>
-            <button
-              onClick={() => {
-                setSelectedId(null);
-                window.location.href = `/sales/container/${selectedId}`;
-              }}
-              className="w-full px-4 py-2 bg-blue-100 text-blue-800 hover:bg-blue-200 rounded text-sm"
-            >
-              Make Sale in Container
-            </button>
-            <button
-              onClick={() => {
-                setSelectedId(null);
-                handleMarkReceived(selectedId!);
-              }}
-              className="w-full px-4 py-2 bg-green-100 text-green-800 hover:bg-green-200 rounded text-sm"
-            >
-              Perform Offload
-            </button>
-            <button
-              onClick={() => {
-                setSelectedId(null);
-                window.location.href = `/summary/container/${selectedId}`;
-              }}
-              className="w-full px-4 py-2 bg-gray-100 text-gray-800 hover:bg-gray-200 rounded text-sm"
-            >
-              Container Sales Report
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setSelectedId(null);
+                  window.location.href = `/sales/container/${selectedId}`;
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-sm font-medium transition-colors duration-200"
+              >
+                <Container className="w-4 h-4" />
+                Make Sale in Container
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedId(null);
+                  handleMarkReceived(selectedId!);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl text-sm font-medium transition-colors duration-200"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Perform Offload
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedId(null);
+                  window.location.href = `/summary/container/${selectedId}`;
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-xl text-sm font-medium transition-colors duration-200"
+              >
+                <Truck className="w-4 h-4" />
+                Container Sales Report
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete(selectedId!);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl text-sm font-medium transition-colors duration-200"
+              >
+                <Clock className="w-4 h-4" />
+                Delete Container
+              </button>
+            </div>
             <button
               onClick={() => setSelectedId(null)}
-              className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm"
+              className="w-full mt-6 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors duration-200"
             >
               Cancel
             </button>

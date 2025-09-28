@@ -1,13 +1,33 @@
 import { cn } from "@/utils/cn";
 import React from "react";
 
-type CardProps = React.HTMLAttributes<HTMLDivElement>;
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  hover?: boolean;
+  glass?: boolean;
+}
 
-export function Card({ className, ...props }: CardProps) {
+export function Card({ className, hover = false, glass = false, ...props }: CardProps) {
   return (
     <div
-      className={cn("rounded-lg  bg-gray-100 text-black shadow-sm", className)}
+      className={cn(
+        "card", // base card class from globals.css
+        hover && "card-hover",
+        glass && "glass",
+        className
+      )}
       {...props}
+    />
+  );
+}
+
+export function CardHeader({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div 
+      className={cn("flex flex-col space-y-1.5 pb-6", className)} 
+      {...props} 
     />
   );
 }
@@ -16,7 +36,12 @@ export function CardContent({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-4", className)} {...props} />;
+  return (
+    <div 
+      className={cn("space-y-4", className)} 
+      {...props} 
+    />
+  );
 }
 
 export function CardTitle({
@@ -25,7 +50,7 @@ export function CardTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn("text-lg font-semibold leading-none", className)}
+      className={cn("text-2xl font-semibold leading-none tracking-tight text-gray-900", className)}
       {...props}
     />
   );
@@ -36,6 +61,21 @@ export function CardDescription({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-sm text-muted-foreground", className)} {...props} />
+    <p 
+      className={cn("text-sm text-gray-600 leading-relaxed", className)} 
+      {...props} 
+    />
+  );
+}
+
+export function CardFooter({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div 
+      className={cn("flex items-center pt-6 border-t border-gray-100", className)} 
+      {...props} 
+    />
   );
 }
